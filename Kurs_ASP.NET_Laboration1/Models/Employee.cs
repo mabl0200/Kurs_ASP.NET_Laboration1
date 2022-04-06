@@ -13,5 +13,12 @@ namespace Kurs_ASP.NET_Laboration1.Models
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
+
+        public ICollection<LeaveApplication> LeaveApplications { get; set; }
+
+        public string GetFullName()
+        {
+            return $"{FirstName} {LastName}";
+        }
     }
 }

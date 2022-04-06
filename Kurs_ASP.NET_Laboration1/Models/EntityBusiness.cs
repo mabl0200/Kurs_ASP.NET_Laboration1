@@ -8,7 +8,9 @@ namespace Kurs_ASP.NET_Laboration1.Models
     class EntityBusiness : DbContext
     {
         public DbSet<Employee> Employees { get; set; }
-        
+        public DbSet<LeaveApplication> LeaveApplications { get; set; }
+        public DbSet<LeaveType> LeaveTypes { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Data Source=DESKTOP-59ADV49\\SQLEXPRESS; Initial Catalog = EntityBusiness; Integrated Security = True;");

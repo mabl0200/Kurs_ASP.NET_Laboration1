@@ -4,14 +4,16 @@ using Kurs_ASP.NET_Laboration1.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Kurs_ASP.NET_Laboration1.Migrations
 {
     [DbContext(typeof(EntityBusiness))]
-    partial class EntityBusinessModelSnapshot : ModelSnapshot
+    [Migration("20220406153052_AddedNewTables")]
+    partial class AddedNewTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
