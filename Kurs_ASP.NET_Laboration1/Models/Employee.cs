@@ -18,6 +18,7 @@ namespace Kurs_ASP.NET_Laboration1.Models
 
         public string GetFullName()
         {
+
             return $"{FirstName} {LastName}";
         }
     }
