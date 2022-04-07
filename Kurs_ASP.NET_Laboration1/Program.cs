@@ -82,17 +82,62 @@ namespace Kurs_ASP.NET_Laboration1
                         break;
                     case 2:
                         Console.WriteLine("Du är administratör som vill hämta ledighetansökningar");
-                        Console.WriteLine("Ange vilken månad du vill se: ");
-                        int chosenMonth = Int32.Parse(Console.ReadLine());
-                        Console.WriteLine("Alla ansökningar gjorda");
-                        foreach (var item in leaveApplications)
+                        Console.WriteLine("1: Hämta ansökningar från en specifik person");
+                        Console.WriteLine("2: Hämta alla ansökningar");
+                        int val = Int32.Parse(Console.ReadLine());
+                        switch (val)
                         {
-                            //item.ApplyDate.Month
-                            if (item.ApplyDate.Month == chosenMonth)
-                            {
-                                Console.WriteLine($"Namn: {item.Employee.GetFullName()} Apply day: {item.ApplyDate} Type: {item.LeaveType.LeaveTypeName}");
-                            }
+                            case 1:
+                                Console.WriteLine("Vems ledighetsansökningar vill du se?");
+                                foreach (var item in employees)
+                                {
+                                    Console.WriteLine($"{item.EmployeeId} {item.GetFullName()}");
+                                }
+                                int chosenNumber2 = Int32.Parse(Console.ReadLine());
+                                Console.Clear();
+                                for (int i = 0; i < employees.Count; i++)
+                                {
+                                    if (employees[i].EmployeeId == chosenNumber2)
+                                    {
+                                        foreach (var item in leaveApplications)
+                                        {
+                                            if (employees[i].EmployeeId == item.EmployeeId)
+                                            {
+                                                Console.WriteLine($"Ansökningsdag: {item.ApplyDate}  ");
+                                                Console.WriteLine($"Namn: {item.Employee.GetFullName()}");
+                                                Console.WriteLine($"Type: {item.LeaveType.LeaveTypeName}");
+                                                Console.WriteLine($"Startdatum: {item.StartDate}");
+                                                Console.WriteLine($"Antal dagar: {(item.EndDate - item.StartDate).Days}");
+                                                Console.WriteLine(new string('-', 20));
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+
+                                break;
+                            case 2:
+                                Console.WriteLine("Ange vilken månad du vill se: ");
+                                int chosenMonth = Int32.Parse(Console.ReadLine());
+                                Console.WriteLine("Alla ansökningar gjorda");
+                                foreach (var item in leaveApplications)
+                                {
+                                    //item.ApplyDate.Month
+                                    if (item.ApplyDate.Month == chosenMonth)
+                                    {
+                                        Console.WriteLine($"Ansökningsdag: {item.ApplyDate}  ");
+                                        Console.WriteLine($"Namn: {item.Employee.GetFullName()}");
+                                        Console.WriteLine($"Type: {item.LeaveType.LeaveTypeName}");
+                                        Console.WriteLine($"Startdatum: {item.StartDate}");
+                                        Console.WriteLine($"Antal dagar: {(item.EndDate - item.StartDate).Days}");
+                                        Console.WriteLine(new string('-', 20));
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
                         }
+                        
                         
                         break;
                     default:
@@ -315,9 +360,7 @@ namespace Kurs_ASP.NET_Laboration1
                 throw;
             }
 
-        }
-        
-            
+        } 
 
     }
 }
