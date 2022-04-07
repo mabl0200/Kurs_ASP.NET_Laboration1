@@ -9,149 +9,195 @@ namespace Kurs_ASP.NET_Laboration1
     {
         static void Main(string[] args)
         {
+            /* Använde dessa metoder i början för att lägga in lite data i tabellerna genom koden */
+            //AddEmployee(); //Metod för att lägga till anställd i databasen
+            //AddLeaveType(); //Metod för att lägga till ledighetstyp i databasen
+            //AddLeaveApplication(); //Metod för att lägga till ledighetsansökan i databasen
+            Console.Title = "Ledighetsansökan";
+
             List<Employee> employees = new List<Employee>();
             List<LeaveApplication> leaveApplications = new List<LeaveApplication>();
             List<LeaveType> leaveTypes = new List<LeaveType>();
+            Employee chosenEmployee = new Employee();
+            
             employees = GetEmployees();
             leaveTypes = GetLeaveTypes();
             leaveApplications = GetLeaveApplications(employees, leaveTypes);
-            
-            Employee chosenEmployee = new Employee();
-            LeaveType chosenLeaveType = new LeaveType();
-
-
-            Console.Title = "Ledighetsansökan";
+           
             bool keepLooping = true;
             while (keepLooping)
             {
-                Console.WriteLine("Hej! Vem är du och vad vill du göra?");
+                Console.WriteLine("Vem är du och vad vill du göra?");
                 Console.WriteLine("1: Anställd som vill ansöka om ledighet");
                 Console.WriteLine("2: Administratör som vill hämta ansökningar");
-                int choice = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("3: Avsluta");
+                int choice = GetInput();
                 Console.Clear();
                 switch (choice)
                 {
                     case 1:
-                        Console.WriteLine("Du är anställd som vill ansöka om ledighet");
-                        Console.WriteLine("Ange ditt nummer: ");
-                        foreach (var item in employees)
-                        {
-                            Console.WriteLine($"{item.EmployeeId} {item.GetFullName()}");
-                        }
-                        int chosenNumber = Int32.Parse(Console.ReadLine());
-                        Console.Clear();
-                        //int chosenEmployeeId = 0;
-                        for (int i = 0; i < employees.Count; i++)
-                        {
-                            if (employees[i].EmployeeId == chosenNumber)
-                            {
-                                chosenEmployee = employees[i];
-                                Console.WriteLine($"Chosen employee:{chosenEmployee.EmployeeId} {chosenEmployee.GetFullName()}");
-                                //chosenEmployeeId = employees[i].EmployeeId;
-                                //Console.WriteLine($"Chosen employee: {chosenEmployee.EmployeeId} {chosenEmployee.GetFullName()}");
-                            }
-                        }
-                        Console.WriteLine("Välj ledighetstyp: ");
-                        foreach (var item in leaveTypes)
-                        {
-                            Console.WriteLine($"Id: {item.LeaveTypeID} Namn: {item.LeaveTypeName}");
-                        }
-                        int chosenLeaveTypeNr = Int32.Parse(Console.ReadLine());
-                        Console.Clear();
-                        for (int i = 0; i < leaveTypes.Count; i++)
-                        {
-                            if (leaveTypes[i].LeaveTypeID == chosenLeaveTypeNr)
-                            {
-                                chosenLeaveType = leaveTypes[i];
-                                Console.WriteLine($"Ansöka om ledigthet för {chosenLeaveType.LeaveTypeName}");
-                            }
-                        }
                         
-                        Console.WriteLine($"Ange startdatum: YYYY, MM, DD");
-                        DateTime chosenStartDate = DateTime.Parse(Console.ReadLine());
-                        Console.WriteLine(chosenStartDate);
-                        Console.WriteLine($"Ange slutdatum: YYYY, MM, DD");
-                        DateTime chosenEndDate = DateTime.Parse(Console.ReadLine());
-                        Console.WriteLine(chosenEndDate);
-                        DateTime applyDate = DateTime.Now;
+                        Console.WriteLine("Ange ditt anställningsnummer för att ansöka om ledighet: ");
+                        PrintEmployees(employees);
+                        int chosenNumber = GetInput();
                         Console.Clear();
-                        Console.WriteLine("Stämmer detta?");
-                        Console.WriteLine($"Anställdnr: {chosenEmployee.EmployeeId} {chosenEmployee.GetFullName()} söker ledigt för {chosenLeaveType.LeaveTypeName} med start: {chosenStartDate} och slut: {chosenEndDate}. Ansökan skickad: {applyDate} ");
-                        AddLeaveApplication(chosenLeaveType.LeaveTypeID, chosenEmployee.EmployeeId, chosenStartDate, chosenEndDate, applyDate);
-
+                        chosenEmployee = GetSpecificEmployee(employees, chosenNumber);
+                        CreateApplication(chosenEmployee, leaveTypes, employees);
                         break;
-                    case 2:
-                        Console.WriteLine("Du är administratör som vill hämta ledighetansökningar");
-                        Console.WriteLine("1: Hämta ansökningar från en specifik person");
-                        Console.WriteLine("2: Hämta alla ansökningar");
-                        int val = Int32.Parse(Console.ReadLine());
-                        switch (val)
-                        {
-                            case 1:
-                                Console.WriteLine("Vems ledighetsansökningar vill du se?");
-                                foreach (var item in employees)
-                                {
-                                    Console.WriteLine($"{item.EmployeeId} {item.GetFullName()}");
-                                }
-                                int chosenNumber2 = Int32.Parse(Console.ReadLine());
-                                Console.Clear();
-                                for (int i = 0; i < employees.Count; i++)
-                                {
-                                    if (employees[i].EmployeeId == chosenNumber2)
-                                    {
-                                        foreach (var item in leaveApplications)
-                                        {
-                                            if (employees[i].EmployeeId == item.EmployeeId)
-                                            {
-                                                Console.WriteLine($"Ansökningsdag: {item.ApplyDate}  ");
-                                                Console.WriteLine($"Namn: {item.Employee.GetFullName()}");
-                                                Console.WriteLine($"Type: {item.LeaveType.LeaveTypeName}");
-                                                Console.WriteLine($"Startdatum: {item.StartDate}");
-                                                Console.WriteLine($"Antal dagar: {(item.EndDate - item.StartDate).Days}");
-                                                Console.WriteLine(new string('-', 20));
-                                            }
-                                        }
-                                        
-                                    }
-                                }
 
-                                break;
-                            case 2:
-                                Console.WriteLine("Ange vilken månad du vill se: ");
-                                int chosenMonth = Int32.Parse(Console.ReadLine());
-                                Console.WriteLine("Alla ansökningar gjorda");
+                    case 2:
+                        bool looping = true;
+                        while (looping)
+                        {
+                            Console.WriteLine("Välj vad du som administratör vill göra: ");
+                            Console.WriteLine("1: Hämta ansökningar från en specifik person");
+                            Console.WriteLine("2: Hämta alla ansökningar");
+                            int val = GetInput();
+                            Console.Clear();
+                            if (val == 1)
+                            {
+                                Console.WriteLine("Ange anställningsid för den person vars ledighetsansökningar du vill se");
+                                PrintEmployees(employees);
+                                int employId = GetInput();
+                                chosenEmployee = GetSpecificEmployee(employees, employId);
+                                Console.Clear();
+
+                                //Skriver ut alla ledighetsansökningar från vald person
                                 foreach (var item in leaveApplications)
                                 {
-                                    //item.ApplyDate.Month
-                                    if (item.ApplyDate.Month == chosenMonth)
+                                    if (chosenEmployee.EmployeeId == item.EmployeeId)
                                     {
-                                        Console.WriteLine($"Ansökningsdag: {item.ApplyDate}  ");
-                                        Console.WriteLine($"Namn: {item.Employee.GetFullName()}");
-                                        Console.WriteLine($"Type: {item.LeaveType.LeaveTypeName}");
-                                        Console.WriteLine($"Startdatum: {item.StartDate}");
-                                        Console.WriteLine($"Antal dagar: {(item.EndDate - item.StartDate).Days}");
-                                        Console.WriteLine(new string('-', 20));
+                                        PrintResult(item);
                                     }
                                 }
-                                break;
-                            default:
-                                break;
+                                Console.WriteLine("Tryck Enter för att återgå till startsidan");
+                                Console.ReadLine();
+                                Console.Clear();
+                                looping = false;
+                            }
+                            if (val == 2)
+                            {
+                                Console.WriteLine("Ange vilken månad (MM) du vill se: ");
+                                int chosenMonth = Int32.Parse(Console.ReadLine());
+                                Console.WriteLine("Alla ledighetsansökningar: ");
+                                foreach (var item in leaveApplications)
+                                {
+                                    if (item.ApplyDate.Month == chosenMonth)
+                                    {
+                                        PrintResult(item);
+                                    }
+                                }
+                                Console.WriteLine("Tryck Enter för att återgå till startsidan");
+                                Console.ReadLine();
+                                Console.Clear();
+                                looping = false;
+                            }
+                            
                         }
-                        
-                        
+                        break;
+                    case 3:
+                        keepLooping = false;
                         break;
                     default:
                         Console.WriteLine("Oj något blev fel, testa igen");
                         break;
                 }
-
             }
-            
-            //AddEmployee(); //Metod för att lägga till anställd i databasen
-            //AddLeaveType(); //Metod för att lägga till ledighetstyp i databasen
-            //AddLeaveApplication(); //Metod för att lägga till ledighetsansökan i databasen
         }
-        public static void AddEmployee()
+        public static void CreateApplication(Employee chosenEmployee, List<LeaveType> leaveTypes, List<Employee> employees) //Hämtar all info för ny ledighetsansökan för att sedan skicka den till metod som lägger till ansökningar i databasen
+        {
+            bool keepLooping = true;
+            while (keepLooping)
+            {
+                LeaveType chosenLeaveType = new LeaveType();
+                Console.WriteLine("Ange nummer för önskad ledighetstyp: ");
+
+                //Skriv ut en lista med alla sortes typer av ledighetsansökningar
+                foreach (var item in leaveTypes)
+                {
+                    Console.WriteLine($"Id: {item.LeaveTypeID} Namn: {item.LeaveTypeName}");
+                }
+                int chosenLeaveTypeNr = GetInput();
+                Console.Clear();
+
+                //Hitta vilken typ som blev vald
+                for (int i = 0; i < leaveTypes.Count; i++)
+                {
+                    if (leaveTypes[i].LeaveTypeID == chosenLeaveTypeNr)
+                    {
+                        chosenLeaveType = leaveTypes[i];
+                    }
+                }
+                //Input för start- och slutdatum
+                Console.WriteLine($"Ange startdatum: YYYY, MM, DD");
+                DateTime chosenStartDate = DateTime.Parse(Console.ReadLine());
+
+                Console.WriteLine($"Ange slutdatum: YYYY, MM, DD");
+                DateTime chosenEndDate = DateTime.Parse(Console.ReadLine());
+
+                DateTime applyDate = DateTime.Now;
+                Console.Clear();
+
+                //Sammanställning för att se om input blev rätt
+                Console.WriteLine("Stämmer detta? J eller N");
+                
+                Console.WriteLine(new string('-', 20));
+                Console.WriteLine($"Ansökningsdag: {applyDate}  ");
+                Console.WriteLine($"Anställningsnummer: {chosenEmployee.EmployeeId}");
+                Console.WriteLine($"Namn: {chosenEmployee.GetFullName()}");
+                Console.WriteLine($"Ledighetstyp: {chosenLeaveType.LeaveTypeName}");
+                Console.WriteLine($"Startdatum: {chosenStartDate}");
+                Console.WriteLine($"Slutdatum: {chosenEndDate}");
+                Console.WriteLine($"Antal dagar: {(chosenEndDate - chosenStartDate).Days}");
+                Console.WriteLine(new string('-', 20));
+                
+                string choice = Console.ReadLine().ToLower();
+                if (choice == "j")
+                {
+                    Console.Clear();
+                    AddLeaveApplication(chosenEmployee, chosenLeaveType, chosenStartDate, chosenEndDate, applyDate, employees, leaveTypes);
+                    keepLooping = false;
+                }
+            }
+        }
+        public static Employee GetSpecificEmployee(List<Employee> employees, int chosenNumber) //Hämtar info om vald anställd
+        {
+            foreach (var item in employees)
+            {
+                if (item.EmployeeId == chosenNumber)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+        public static void PrintEmployees(List<Employee> employees) //Skriver ut alla anställda
+        {
+            Console.WriteLine(new string('-', 30));
+            foreach (var item in employees)
+            {
+                Console.WriteLine($"Anställningsid: {item.EmployeeId} Namn: {item.GetFullName()}");
+                Console.WriteLine(new string('-', 30));
+            }
+        }
+        public static void PrintResult(LeaveApplication item) //Skriver ut lista med ledighetsansökningar
+        {
+            Console.WriteLine(new string('-', 30));
+            Console.WriteLine($"Ansökningsdag: {item.ApplyDate}  ");
+            Console.WriteLine($"Anställningsnummer: {item.Employee.EmployeeId}");
+            Console.WriteLine($"Namn: {item.Employee.GetFullName()}");
+            Console.WriteLine($"Ledighetstyp: {item.LeaveType.LeaveTypeName}");
+            Console.WriteLine($"Startdatum: {item.StartDate}");
+            Console.WriteLine($"Slutdatum: {item.EndDate}");
+            Console.WriteLine($"Antal dagar: {(item.EndDate - item.StartDate).Days}");
+            
+        } 
+        public static int GetInput() //Hämta input från användare
+        {
+            int choice = Int32.Parse(Console.ReadLine());
+            return choice;
+        }
+        public static void AddEmployee() //Lägg till en slumpvis namngiven anställd
         {
             try
             {
@@ -182,41 +228,54 @@ namespace Kurs_ASP.NET_Laboration1
             }
             
         }
-        public static void AddLeaveApplication(int leaveType, int employee, DateTime start, DateTime end, DateTime apply)
+        public static void AddLeaveApplication(Employee employee, LeaveType leaveType, DateTime start, DateTime end, DateTime apply, List<Employee> employees, List<LeaveType> leaveTypes) //Lägg till ledighetsansökan till databas
         {
             try
             {
-                //Add Leave Application to db
                 using EntityBusiness context = new EntityBusiness();
 
                 LeaveApplication leaveApplication = new LeaveApplication()
                 {
-                    LeaveTypeID = leaveType,
-                    EmployeeId = employee,
+                    LeaveTypeID = leaveType.LeaveTypeID,
+                    EmployeeId = employee.EmployeeId,
                     StartDate = start,
                     EndDate = end,
                     ApplyDate = apply
-
                 };
                 context.Add(leaveApplication);
                 context.SaveChanges();
-                
-                Console.WriteLine($"Added on: {leaveApplication.ApplyDate} Employee: {leaveApplication.EmployeeId} Leave: {leaveApplication.LeaveTypeID} From: {leaveApplication.StartDate} To: {leaveApplication.EndDate} ");
+                Console.WriteLine("Ledighetsansökan skickad!");
+                foreach (var person in employees)
+                {
+                    if (leaveApplication.EmployeeId == person.EmployeeId)
+                    {
+                        leaveApplication.Employee = person;
+                    }
+                }
+                foreach (var type in leaveTypes)
+                {
+                    if (leaveApplication.LeaveTypeID == type.LeaveTypeID)
+                    {
+                        leaveApplication.LeaveType = type;
+                    }
+                }
 
+                PrintResult(leaveApplication);
+                Console.WriteLine(new string('-', 30));
+                Console.WriteLine("Tryck Enter för att återgå till startsidan");
+                Console.ReadLine();
+                Console.Clear();
             }
             catch (Exception error)
             {
                 Console.WriteLine(error);
                 throw;
             }
-            
-
         }
-        public static void AddLeaveType()
+        public static void AddLeaveType() //Lägg till ledighetstyp till databas
         {
             try
             {
-                //Add Leave Type to db
                 using EntityBusiness context = new EntityBusiness();
 
                 LeaveType leaveType = new LeaveType()
@@ -228,16 +287,14 @@ namespace Kurs_ASP.NET_Laboration1
                 Console.WriteLine($"Added {leaveType.LeaveTypeID} {leaveType.LeaveTypeName}");
 
             }
-            catch (Exception)
+            catch (Exception error)
             {
-
+                Console.WriteLine(error);
                 throw;
             }
-            
-
         }
 
-        public static List<Employee> GetEmployees()
+        public static List<Employee> GetEmployees() //Hämta anställda från databas
         {
             try
             {
@@ -256,11 +313,9 @@ namespace Kurs_ASP.NET_Laboration1
                             LastName = employee.LastName
                         };
                         listToReturn.Add(employeeData);
-                        //Console.WriteLine($"{employee.EmployeeId} {employee.GetFullName()}");
                     }
                     return listToReturn;
                 }
-
             }
             catch (Exception error)
             {
@@ -269,7 +324,7 @@ namespace Kurs_ASP.NET_Laboration1
             }
         }
 
-        public static List<LeaveApplication> GetLeaveApplications(List<Employee> employees, List<LeaveType> leaveTypes)
+        public static List<LeaveApplication> GetLeaveApplications(List<Employee> employees, List<LeaveType> leaveTypes) //Hämta ledighetsansökningar från databas
         {
             try
             {
@@ -293,15 +348,12 @@ namespace Kurs_ASP.NET_Laboration1
                             LeaveType = application.LeaveType
                             
                         };
-                        //var listOfEmployees = from e in db.Employees
-                        //                      where e.EmployeeId > 0
-                        //                      select e;
+                       
                         foreach (var person in employees)
                         {
                             if (applicationData.EmployeeId == person.EmployeeId)
                             {
                                 applicationData.Employee = person;
-                                
                             }
                         }
                         foreach (var type in leaveTypes)
@@ -312,16 +364,10 @@ namespace Kurs_ASP.NET_Laboration1
                             }
                         }
                         listToReturn.Add(applicationData);
-                        //Console.WriteLine(applicationData.Employee.GetFullName());
-                        //var emp = new LeaveApplication
-                        //{
-                        //    Employee = application.EmployeeId;
-                        //}
-                        //Console.WriteLine($"{application.ApplicationId} {application.LeaveTypeID} {application.EmployeeId} {application.StartDate} {application.EndDate} {application.ApplyDate}");
+                        
                     }
                     return listToReturn;
                 }
-
             }
             catch (Exception error)
             {
@@ -330,7 +376,7 @@ namespace Kurs_ASP.NET_Laboration1
             }
 
         }
-        public static List<LeaveType> GetLeaveTypes()
+        public static List<LeaveType> GetLeaveTypes() //Hämta ledighetstyper från databas
         {
             try
             {
@@ -348,7 +394,6 @@ namespace Kurs_ASP.NET_Laboration1
                             LeaveTypeName = leaveType.LeaveTypeName
                         };
                         listToReturn.Add(leaveTypeData);
-                        //Console.WriteLine($"Id: {leaveType.LeaveTypeID} Name: {leaveType.LeaveTypeName}");
                     }
                     return listToReturn;
                 }
@@ -360,7 +405,7 @@ namespace Kurs_ASP.NET_Laboration1
                 throw;
             }
 
-        } 
+        }  
 
     }
 }
