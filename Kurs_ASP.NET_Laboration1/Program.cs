@@ -10,11 +10,12 @@ namespace Kurs_ASP.NET_Laboration1
         static void Main(string[] args)
         {
             /* Använde dessa metoder i början för att lägga in lite data i tabellerna genom koden */
+
             //AddEmployee(); //Metod för att lägga till anställd i databasen
             //AddLeaveType(); //Metod för att lägga till ledighetstyp i databasen
-            //AddLeaveApplication(); //Metod för att lägga till ledighetsansökan i databasen
-            Console.Title = "Ledighetsansökan";
+            //AddLeaveApplication(); //Metod för att lägga till ledighetsansökan i databasen (har justerats)
 
+            Console.Title = "Ledighetsansökan";
             List<Employee> employees = new List<Employee>();
             List<LeaveApplication> leaveApplications = new List<LeaveApplication>();
             List<LeaveType> leaveTypes = new List<LeaveType>();
@@ -23,7 +24,7 @@ namespace Kurs_ASP.NET_Laboration1
             employees = GetEmployees();
             leaveTypes = GetLeaveTypes();
             leaveApplications = GetLeaveApplications(employees, leaveTypes);
-           
+            
             bool keepLooping = true;
             while (keepLooping)
             {
@@ -36,13 +37,12 @@ namespace Kurs_ASP.NET_Laboration1
                 switch (choice)
                 {
                     case 1:
-                        
                         Console.WriteLine("Ange ditt anställningsnummer för att ansöka om ledighet: ");
                         PrintEmployees(employees);
                         int chosenNumber = GetInput();
                         Console.Clear();
                         chosenEmployee = GetSpecificEmployee(employees, chosenNumber);
-                        CreateApplication(chosenEmployee, leaveTypes, employees);
+                        CreateApplication(chosenEmployee, leaveTypes);
                         break;
 
                     case 2:
@@ -92,7 +92,6 @@ namespace Kurs_ASP.NET_Laboration1
                                 Console.Clear();
                                 looping = false;
                             }
-                            
                         }
                         break;
                     case 3:
@@ -104,7 +103,7 @@ namespace Kurs_ASP.NET_Laboration1
                 }
             }
         }
-        public static void CreateApplication(Employee chosenEmployee, List<LeaveType> leaveTypes, List<Employee> employees) //Hämtar all info för ny ledighetsansökan för att sedan skicka den till metod som lägger till ansökningar i databasen
+        public static void CreateApplication(Employee chosenEmployee, List<LeaveType> leaveTypes) //Hämtar all info för ny ledighetsansökan för att sedan skicka den till metod som lägger till ansökningar i databasen
         {
             bool keepLooping = true;
             while (keepLooping)
@@ -155,7 +154,7 @@ namespace Kurs_ASP.NET_Laboration1
                 if (choice == "j")
                 {
                     Console.Clear();
-                    AddLeaveApplication(chosenEmployee, chosenLeaveType, chosenStartDate, chosenEndDate, applyDate, employees, leaveTypes);
+                    AddLeaveApplication(chosenEmployee, chosenLeaveType, chosenStartDate, chosenEndDate, applyDate);
                     keepLooping = false;
                 }
             }
@@ -223,12 +222,11 @@ namespace Kurs_ASP.NET_Laboration1
             }
             catch (Exception)
             {
-
                 throw;
             }
             
         }
-        public static void AddLeaveApplication(Employee employee, LeaveType leaveType, DateTime start, DateTime end, DateTime apply, List<Employee> employees, List<LeaveType> leaveTypes) //Lägg till ledighetsansökan till databas
+        public static void AddLeaveApplication(Employee employee, LeaveType leaveType, DateTime start, DateTime end, DateTime apply) //Lägg till ledighetsansökan till databas
         {
             try
             {
@@ -244,24 +242,13 @@ namespace Kurs_ASP.NET_Laboration1
                 };
                 context.Add(leaveApplication);
                 context.SaveChanges();
-                Console.WriteLine("Ledighetsansökan skickad!");
-                foreach (var person in employees)
-                {
-                    if (leaveApplication.EmployeeId == person.EmployeeId)
-                    {
-                        leaveApplication.Employee = person;
-                    }
-                }
-                foreach (var type in leaveTypes)
-                {
-                    if (leaveApplication.LeaveTypeID == type.LeaveTypeID)
-                    {
-                        leaveApplication.LeaveType = type;
-                    }
-                }
 
+                leaveApplication.Employee = employee;
+                leaveApplication.LeaveType = leaveType;
+                Console.WriteLine("Ledighetsansökan skickad!");
                 PrintResult(leaveApplication);
                 Console.WriteLine(new string('-', 30));
+
                 Console.WriteLine("Tryck Enter för att återgå till startsidan");
                 Console.ReadLine();
                 Console.Clear();
@@ -323,7 +310,7 @@ namespace Kurs_ASP.NET_Laboration1
                 throw;
             }
         }
-
+        
         public static List<LeaveApplication> GetLeaveApplications(List<Employee> employees, List<LeaveType> leaveTypes) //Hämta ledighetsansökningar från databas
         {
             try
@@ -348,7 +335,7 @@ namespace Kurs_ASP.NET_Laboration1
                             LeaveType = application.LeaveType
                             
                         };
-                       
+
                         foreach (var person in employees)
                         {
                             if (applicationData.EmployeeId == person.EmployeeId)
